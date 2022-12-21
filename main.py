@@ -3,7 +3,7 @@ from random import shuffle #перемешивает любой список
 
 class MyButton(tkinter.Button): #Вся информация о кнопках
     
-    def __init__(self, master, x, y, number, *args, **kwargs):
+    def __init__(self, master, x, y, number = 0, *args, **kwargs):
         super(MyButton, self).__init__(master, width = 3, font='Comics_sans 15 bold', *args, **kwargs)
         self.x = x
         self.y = y
@@ -24,25 +24,34 @@ class BaronBunny:
 
     def __init__(self):
         self.buttons = []
-        count = 1
-        for i in range(BaronBunny.ROW): #Создаём цикл который делает кнопки
+        for i in range(BaronBunny.ROW+2): #Создаём цикл который делает кнопки
             temp = []
-            for j in range(BaronBunny.COLUMNS):
-                btn = MyButton(BaronBunny.window, x = i, y = j, number=count)
+            for j in range(BaronBunny.COLUMNS+2):
+                btn = MyButton(BaronBunny.window, x = i, y = j)
                 btn.config(command =lambda button = btn: self.click(button))
                 temp.append(btn)
-                count += 1 
             self.buttons.append(temp)
 
     def create_widgets(self):
-        for i in range(BaronBunny.ROW):
-            for j in range(BaronBunny.COLUMNS):
+        for i in range(BaronBunny.ROW+2):
+            for j in range(BaronBunny.COLUMNS+2):
                 btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
                 btn.grid(row =i, column = j) # Выводит в tinker сами кнопки 
 
+    def open_btn(self):
+        for i in range(BaronBunny.ROW+2):
+            for j in range(BaronBunny.COLUMNS+2):
+                btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
+                if btn.bunny: 
+                    btn.config(text = '*', background='red') #Если мина, то *
+                else:
+                    btn.config(text = btn.number)
+                btn.config(state='disabled', disabledforeground='black')  
+                btn.grid(row =i, column = j) # Выводит в tinker сами кнопки
+
     def click(self, click_btn: MyButton):
-        if click_btn.bunny:
-            click_btn.config(text = '*', background='red')
+        if click_btn.bunny: 
+            click_btn.config(text = '*', background='red') #Если мина, то *
         else:
             click_btn.config(text = click_btn.number)
         click_btn.config(state='disabled', disabledforeground='black')
@@ -55,10 +64,14 @@ class BaronBunny:
     def insert_bunny(self):
         index_bunny = (self.get_bunny_places())
         print (index_bunny)
-        for row_btn in self.buttons:
-            for btn in row_btn:
+        count = 1 
+        for i in range(1, BaronBunny.ROW + 1):
+            for j in range(1, BaronBunny.COLUMNS+1):
+                btn = self.buttons[i][j]
+                btn.number = count
                 if btn.number in index_bunny:
                     btn.bunny = True
+                count += 1
 
     @staticmethod #не поучает данные из __init__
     def get_bunny_places():
@@ -70,6 +83,7 @@ class BaronBunny:
     def start(self):
         self.create_widgets()
         self.insert_bunny()
+        self.open_btn()
         self.print_Button()
         BaronBunny.window.mainloop()
 
