@@ -1,7 +1,7 @@
 import tkinter
 from random import shuffle #перемешивает любой список
 
-class MyButton(tkinter.Button):
+class MyButton(tkinter.Button): #Вся информация о кнопках
     
     def __init__(self, master, x, y, number, *args, **kwargs):
         super(MyButton, self).__init__(master, width = 3, font='Comics_sans 15 bold', *args, **kwargs)
@@ -29,6 +29,7 @@ class BaronBunny:
             temp = []
             for j in range(BaronBunny.COLUMNS):
                 btn = MyButton(BaronBunny.window, x = i, y = j, number=count)
+                btn.config(command =lambda button = btn: self.click(button))
                 temp.append(btn)
                 count += 1 
             self.buttons.append(temp)
@@ -38,6 +39,14 @@ class BaronBunny:
             for j in range(BaronBunny.COLUMNS):
                 btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
                 btn.grid(row =i, column = j) # Выводит в tinker сами кнопки 
+
+    def click(self, click_btn: MyButton):
+        if click_btn.bunny:
+            click_btn.config(text = '*', background='red')
+        else:
+            click_btn.config(text = click_btn.number)
+        click_btn.config(state='disabled', disabledforeground='black')
+
 
     def print_Button(self):
         for row_btn in self.buttons:
