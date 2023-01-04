@@ -4,6 +4,7 @@ from PIL import ImageTk
 from random import shuffle #перемешивает любой список
 
 colors = {
+    0: 'white',
     1: 'blue',
     2: 'green',
     3: '#8037ed',
@@ -29,9 +30,9 @@ class MyButton(tkinter.Button): #Вся информация о кнопках
 class BaronBunny:
     window = tkinter.Tk()
     window.title("BaronBunny | Alpha")
-    ROW = 5 #Столбцов 
-    COLUMNS = 3 #Строк
-    MINES = 7
+    ROW = 10 #Столбцов 
+    COLUMNS = 10 #Строк
+    MINES = 10
 
 
     def __init__(self):
@@ -57,12 +58,6 @@ class BaronBunny:
                 if btn.bunny:
                     # icon = ImageTk.PhotoImage(file="D:\Desktop\my works\Game\Sapper\icon.png")
                     btn.config(text = '*', background='red') #Если мина, то *
-                # elif btn.count_bomb == 1:
-                #     btn.config(text = btn.count_bomb, fg='blue')
-                # elif btn.count_bomb == 2:
-                #     btn.config(text = btn.count_bomb, fg='green')
-                # elif btn.count_bomb == 3:
-                #     btn.config(text = btn.count_bomb, fg='blue')
                 elif btn.count_bomb in colors:
                     color = colors.get(btn.count_bomb, 'black')
                     btn.config(text = btn.count_bomb, fg = color)
@@ -72,10 +67,15 @@ class BaronBunny:
 
     def click(self, click_btn: MyButton):
         if click_btn.bunny: 
-            click_btn.config(text = '*', background='red') #Если мина, то *
+            click_btn.config(text = '*', background='red', disabledforeground='black') #Если мина, то *
         else:
-            click_btn.config(text = click_btn.count_bomb)
-        click_btn.config(state='disabled', disabledforeground='black')
+            color = colors.get(click_btn.count_bomb, 'black')
+            if click_btn.count_bomb:
+                click_btn.config(text = click_btn.count_bomb, disabledforeground=color)
+            else:
+                click_btn.config(text = '', disabledforeground=color)
+        click_btn.config(state='disabled', relief=tkinter.SUNKEN) # Добавляет рельеф
+        
 
 
     def print_Button(self):
