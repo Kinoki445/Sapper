@@ -3,6 +3,17 @@ from tkinter import Tk, Button
 from PIL import ImageTk
 from random import shuffle #перемешивает любой список
 
+colors = {
+    1: 'blue',
+    2: 'green',
+    3: '#8037ed',
+    4: '#377ded',
+    5: '#d64b85',
+    6: '#d6724b',
+    7: '#d64bca',
+    8: '#8c2222'
+}
+
 class MyButton(tkinter.Button): #Вся информация о кнопках
     def __init__(self, master, x, y, number = 0, *args, **kwargs):
         super(MyButton, self).__init__(master, width = 5, font='Comics_sans 15 bold', *args, **kwargs)
@@ -46,8 +57,15 @@ class BaronBunny:
                 if btn.bunny:
                     # icon = ImageTk.PhotoImage(file="D:\Desktop\my works\Game\Sapper\icon.png")
                     btn.config(text = '*', background='red') #Если мина, то *
-                else:
-                    btn.config(text = btn.count_bomb)
+                # elif btn.count_bomb == 1:
+                #     btn.config(text = btn.count_bomb, fg='blue')
+                # elif btn.count_bomb == 2:
+                #     btn.config(text = btn.count_bomb, fg='green')
+                # elif btn.count_bomb == 3:
+                #     btn.config(text = btn.count_bomb, fg='blue')
+                elif btn.count_bomb in colors:
+                    color = colors.get(btn.count_bomb, 'black')
+                    btn.config(text = btn.count_bomb, fg = color)
 
                 # btn.config(state='disabled', disabledforeground='black')  
                 # btn.grid(row =i, column = j) # Выводит в tinker сами кнопки
@@ -61,8 +79,14 @@ class BaronBunny:
 
 
     def print_Button(self):
-        for row_btn in self.buttons:
-            print(row_btn) 
+        for i in range(1, BaronBunny.ROW + 1):
+            for j in range(1, BaronBunny.COLUMNS+1):
+                btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
+                if btn.bunny:
+                    print('B ', end='')
+                else:
+                    print(f'{btn.count_bomb} ', end='')
+            print()
 
     def insert_bunny(self):
         index_bunny = (self.get_bunny_places())
