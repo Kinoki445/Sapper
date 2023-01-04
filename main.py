@@ -17,12 +17,13 @@ colors = {
 
 class MyButton(tkinter.Button): #Вся информация о кнопках
     def __init__(self, master, x, y, number = 0, *args, **kwargs):
-        super(MyButton, self).__init__(master, width = 5, font='Comics_sans 15 bold', *args, **kwargs)
+        super(MyButton, self).__init__(master, width = 3, font='Comics_sans 15 bold', *args, **kwargs)
         self.x = x
         self.y = y
         self.number = number
         self.bunny = False
         self.count_bomb = 0
+        self.is_open = False
 
     def __repr__(self): # меняет вывод в консоль 
         return (f'Btn #:{self.number} x:{self.x} y:{self.y} {self.bunny}')
@@ -31,15 +32,15 @@ class BaronBunny:
     window = tkinter.Tk()
     window.title("BaronBunny | Alpha")
     ROW = 10 #Столбцов 
-    COLUMNS = 10 #Строк
+    COLUMNS = 7 #Строк
     MINES = 10
 
 
     def __init__(self):
         self.buttons = []
-        for i in range(BaronBunny.ROW+2): #Создаём цикл который делает кнопки
+        for i in range(BaronBunny.ROW + 2): #Создаём цикл который делает кнопки
             temp = []
-            for j in range(BaronBunny.COLUMNS+2):
+            for j in range(BaronBunny.COLUMNS + 2):
                 btn = MyButton(BaronBunny.window, x = i, y = j)
                 btn.config(command =lambda button = btn: self.click(button))
                 temp.append(btn)
@@ -68,19 +69,43 @@ class BaronBunny:
     def click(self, click_btn: MyButton):
         if click_btn.bunny: 
             click_btn.config(text = '*', background='red', disabledforeground='black') #Если мина, то *
+            click_btn.is_open = True
         else:
             color = colors.get(click_btn.count_bomb, 'black')
+            click_btn.is_open = True
             if click_btn.count_bomb:
                 click_btn.config(text = click_btn.count_bomb, disabledforeground=color)
             else:
-                click_btn.config(text = '', disabledforeground=color)
+                self.search(click_btn)
         click_btn.config(state='disabled', relief=tkinter.SUNKEN) # Добавляет рельеф
         
+    def search(self, btn: MyButton):
+        queue = [btn]
+        while queue:
+            cur_btn = queue.pop()
+            color = colors.get(cur_btn.count_bomb, 'black')
+            if cur_btn.count_bomb:
+                cur_btn.config(text = cur_btn.count_bomb, disabledforeground=color)
+            else:
+                cur_btn.config(text = '', disabledforeground=color)
 
+            cur_btn.is_open = True
+            cur_btn.config(state='disabled', relief=tkinter.SUNKEN) # Добавляет рельеф
+
+            if  cur_btn.count_bomb == 0:
+                x, y = (cur_btn.x, cur_btn.y)
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        if not abs(dx - dy) == 1:
+                            continue
+                        
+                        next_btn = self.buttons[x+dx][y+dy]
+                        if not next_btn.is_open and 1<=next_btn.x <= BaronBunny.ROW and 1<=next_btn.y <= BaronBunny.COLUMNS and next_btn not in queue:
+                            queue.append(next_btn)
 
     def print_Button(self):
         for i in range(1, BaronBunny.ROW + 1):
-            for j in range(1, BaronBunny.COLUMNS+1):
+            for j in range(1, BaronBunny.COLUMNS + 1):
                 btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
                 if btn.bunny:
                     print('B ', end='')
@@ -124,7 +149,7 @@ class BaronBunny:
         self.create_widgets()
         self.insert_bunny()
         self.count_mines_in_ceils()
-        self.open_btn()
+        # self.open_btn()
         self.print_Button()
         BaronBunny.window.mainloop()
 
