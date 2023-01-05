@@ -32,13 +32,14 @@ class MyButton(tkinter.Button): #Вся информация о кнопках
 class BaronBunny:
     window = tkinter.Tk()
     window.title("BaronBunny | Alpha")
+    window.iconbitmap(r'icon.ico')
+
     ROW = 10 #Столбцов 
     COLUMNS = 7 #Строк
     MINES = 10
     GAME_OVER = False
     FIRST_CLICK = True
-
-
+    
     def __init__(self):
         self.buttons = []
         for i in range(BaronBunny.ROW + 2): #Создаём цикл который делает кнопки
@@ -46,8 +47,20 @@ class BaronBunny:
             for j in range(BaronBunny.COLUMNS + 2):
                 btn = MyButton(BaronBunny.window, x = i, y = j)
                 btn.config(command = lambda button = btn: self.click(button))
+                btn.bind("<Button-3>", self.right_click)
                 temp.append(btn)
             self.buttons.append(temp)
+
+    def right_click(self, event):
+        if BaronBunny.GAME_OVER:
+            return
+        cur_btn = event.widget
+        if cur_btn['state'] == 'normal':
+            cur_btn['state'] = 'disabled'
+            cur_btn['text'] = '🐰'
+        elif cur_btn['text'] == '🐰':
+            cur_btn['text'] = ''
+            cur_btn['state'] = 'normal'
 
     def game(self):
         [child.destroy() for child in self.window.winfo_children()]
@@ -89,7 +102,6 @@ class BaronBunny:
 
         self.game()
 
-
     def create_widgets(self):
         
         menubar = tkinter.Menu(self.window)
@@ -98,7 +110,6 @@ class BaronBunny:
         menubar.add_command(label='Играть', command=self.game)
         menubar.add_command(label='Настройки', command=self.settings)
         menubar.add_command(label='Выйти', command=self.window.destroy)
-
 
         count = 1
         for i in range(1, BaronBunny.ROW + 1):
@@ -119,8 +130,7 @@ class BaronBunny:
             for j in range(BaronBunny.COLUMNS+2):
                 btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
                 if btn.bunny:
-                    # icon = ImageTk.PhotoImage(file="D:\Desktop\my works\Game\Sapper\icon.png")
-                    btn.config(text = '*', background='red') #Если мина, то *
+                    btn.config(text = '💣') #Если мина, то *
                 elif btn.count_bomb in colors:
                     color = colors.get(btn.count_bomb, 'black')
                     btn.config(text = btn.count_bomb, fg = color)
@@ -141,7 +151,7 @@ class BaronBunny:
 
 
         if click_btn.bunny: 
-            click_btn.config(text = '*', background='red', disabledforeground='black') #Если мина, то *
+            click_btn.config(text = '💣') #Если мина, то *
             click_btn.is_open = True
             BaronBunny.GAME_OVER = True
             showinfo('Game over', 'Вы проиграли')
@@ -150,7 +160,7 @@ class BaronBunny:
                 for j in range(1, BaronBunny.COLUMNS + 1):
                     btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
                     if btn.bunny:
-                        btn['text'] = ('*')
+                        btn['text'] = ('💣')
         else:
             color = colors.get(click_btn.count_bomb, 'black')
             click_btn.is_open = True
@@ -227,8 +237,8 @@ class BaronBunny:
     def start(self):
         self.create_widgets()
         # self.open_btn()
+        BaronBunny.window.resizable(False,False)
         BaronBunny.window.mainloop()
-
 
 game = BaronBunny()
 game.start()
