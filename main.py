@@ -2,6 +2,8 @@ import tkinter
 from tkinter import Tk, Button
 from PIL import ImageTk
 from random import shuffle #перемешивает любой список
+from tkinter.messagebox import showinfo
+
 
 colors = {
     0: 'white',
@@ -34,6 +36,8 @@ class BaronBunny:
     ROW = 10 #Столбцов 
     COLUMNS = 7 #Строк
     MINES = 10
+    GAME_OVER = False
+    FIRST_CLICK = True
 
 
     def __init__(self):
@@ -47,10 +51,21 @@ class BaronBunny:
             self.buttons.append(temp)
 
     def create_widgets(self):
+
+        menubar = tkinter.Menu(self.window)
+        self.window.config(menu=menubar)
+        menubar.add_command(label='Играть')
+        menubar.add_command(label='Настройки')
+        menubar.add_command(label='Выйти', command=self.window.destroy)
+
+
+        count = 1
         for i in range(1, BaronBunny.ROW + 1):
             for j in range(1, BaronBunny.COLUMNS+1):
                 btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
+                btn.number = count
                 btn.grid(row =i, column = j) # Выводит в tinker сами кнопки 
+                count += 1
 
     def open_btn(self):
         for i in range(BaronBunny.ROW+2):
@@ -67,9 +82,28 @@ class BaronBunny:
                 # btn.grid(row =i, column = j) # Выводит в tinker сами кнопки
 
     def click(self, click_btn: MyButton):
+
+        if BaronBunny.GAME_OVER:
+            return None
+            
+        if BaronBunny.FIRST_CLICK:
+            self.insert_bunny(click_btn.number)
+            self.count_mines_in_ceils()
+            self.print_Button()
+            BaronBunny.FIRST_CLICK = False
+
+
         if click_btn.bunny: 
             click_btn.config(text = '*', background='red', disabledforeground='black') #Если мина, то *
             click_btn.is_open = True
+            BaronBunny.GAME_OVER = True
+            showinfo('Game over', 'Вы проиграли')
+
+            for i in range(1, BaronBunny.ROW + 1):
+                for j in range(1, BaronBunny.COLUMNS + 1):
+                    btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
+                    if btn.bunny:
+                        btn['text'] = ('*')
         else:
             color = colors.get(click_btn.count_bomb, 'black')
             click_btn.is_open = True
@@ -79,7 +113,7 @@ class BaronBunny:
                 self.search(click_btn)
         click_btn.config(state='disabled', relief=tkinter.SUNKEN) # Добавляет рельеф
         
-    def search(self, btn: MyButton):
+    def search(self, btn: MyButton): #реализация алгоритм обход в ширину
         queue = [btn]
         while queue:
             cur_btn = queue.pop()
@@ -96,8 +130,8 @@ class BaronBunny:
                 x, y = (cur_btn.x, cur_btn.y)
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
-                        if not abs(dx - dy) == 1:
-                            continue
+                        # if not abs(dx - dy) == 1:
+                        #     continue
                         
                         next_btn = self.buttons[x+dx][y+dy]
                         if not next_btn.is_open and 1<=next_btn.x <= BaronBunny.ROW and 1<=next_btn.y <= BaronBunny.COLUMNS and next_btn not in queue:
@@ -113,18 +147,15 @@ class BaronBunny:
                     print(f'{btn.count_bomb} ', end='')
             print()
 
-    def insert_bunny(self):
-        index_bunny = (self.get_bunny_places())
+    def insert_bunny(self, number: int):
+        index_bunny = (self.get_bunny_places(number))
         print (index_bunny)
-        count = 1 
         for i in range(1, BaronBunny.ROW + 1):
             for j in range(1, BaronBunny.COLUMNS+1):
                 btn = self.buttons[i][j]
-                btn.number = count
                 if btn.number in index_bunny:
                     btn.bunny = True
-                count += 1
-                
+
     def count_mines_in_ceils(self):
         for i in range(BaronBunny.ROW + 1):
             for j in range(BaronBunny.COLUMNS + 1):
@@ -139,18 +170,16 @@ class BaronBunny:
                 btn.count_bomb = count_bomb
 
     @staticmethod #не поучает данные из __init__
-    def get_bunny_places():
+    def get_bunny_places(exclude_number: int):
         index = list(range(1, BaronBunny.COLUMNS * BaronBunny.ROW + 1))
+        index.remove(exclude_number)
         shuffle(index)
         return(index [:BaronBunny.MINES])
 
 
     def start(self):
         self.create_widgets()
-        self.insert_bunny()
-        self.count_mines_in_ceils()
         # self.open_btn()
-        self.print_Button()
         BaronBunny.window.mainloop()
 
 
