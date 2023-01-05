@@ -1,6 +1,5 @@
 import tkinter
-from tkinter import Tk, Button
-from PIL import ImageTk
+
 from random import shuffle #перемешивает любой список
 from tkinter.messagebox import showinfo
 
@@ -46,15 +45,23 @@ class BaronBunny:
             temp = []
             for j in range(BaronBunny.COLUMNS + 2):
                 btn = MyButton(BaronBunny.window, x = i, y = j)
-                btn.config(command =lambda button = btn: self.click(button))
+                btn.config(command = lambda button = btn: self.click(button))
                 temp.append(btn)
             self.buttons.append(temp)
 
+    def game(self):
+        [child.destroy() for child in self.window.winfo_children()]
+        self.__init__()
+        self.create_widgets()
+        BaronBunny.FIRST_CLICK = True
+        BaronBunny.GAME_OVER = False
+        
     def create_widgets(self):
-
+        
         menubar = tkinter.Menu(self.window)
         self.window.config(menu=menubar)
-        menubar.add_command(label='Играть')
+
+        menubar.add_command(label='Играть', command=self.game)
         menubar.add_command(label='Настройки')
         menubar.add_command(label='Выйти', command=self.window.destroy)
 
@@ -64,8 +71,14 @@ class BaronBunny:
             for j in range(1, BaronBunny.COLUMNS+1):
                 btn = self.buttons[i][j] # Указывает место кнопки [0][0] начало
                 btn.number = count
-                btn.grid(row =i, column = j) # Выводит в tinker сами кнопки 
+                btn.grid(row =i, column = j, stick = 'nwes') # Выводит в tinker сами кнопки 
                 count += 1
+        
+        for i in range(1, BaronBunny.ROW + 1):
+            tkinter.Grid.rowconfigure(self.window, i, weight = 1)
+
+        for i in range(1, BaronBunny.COLUMNS + 1):
+            tkinter.Grid.columnconfigure(self.window, i, weight = 1)
 
     def open_btn(self):
         for i in range(BaronBunny.ROW+2):
