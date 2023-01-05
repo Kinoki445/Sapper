@@ -1,7 +1,7 @@
 import tkinter
 
 from random import shuffle #перемешивает любой список
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showinfo, showerror
 
 
 colors = {
@@ -55,14 +55,48 @@ class BaronBunny:
         self.create_widgets()
         BaronBunny.FIRST_CLICK = True
         BaronBunny.GAME_OVER = False
-        
+
+    def settings(self):
+        win_set = tkinter.Toplevel(self.window)
+        win_set.wm_title('Настройки')
+
+        tkinter.Label(win_set, text='Количество строк:').grid(row=0,column=0)
+        row_entry = tkinter.Entry(win_set)
+        row_entry.insert(0, BaronBunny.ROW)
+        row_entry.grid(row=0,column=1, padx=20, pady=20)
+
+        tkinter.Label(win_set, text='Количество колонок:').grid(row=1,column=0)
+        column_entry = tkinter.Entry(win_set)
+        column_entry.insert(0, BaronBunny.COLUMNS)
+        column_entry.grid(row=1, column=1, padx=20, pady=20)
+
+        tkinter.Label(win_set, text='Количество зайцев:').grid(row=2,column=0)
+        bunny_entry = tkinter.Entry(win_set)
+        bunny_entry.insert(0, BaronBunny.MINES)
+        bunny_entry.grid(row=2, column=1, padx=20, pady=20)
+
+        save_btn = tkinter.Button(win_set, text='Применить', command=lambda :self.change_settings(row_entry, column_entry, bunny_entry))
+        save_btn.grid(row=3,column=0, columnspan=2)
+
+    def change_settings(self, row: tkinter.Entry, column: tkinter.Entry, bunny: tkinter.Entry):
+        try:
+            int(row.get()), int(column.get()), int(bunny.get())
+        except ValueError:
+            showerror('ERROR', 'Вы ввели неверное число!')
+        BaronBunny.ROW = int(row.get())
+        BaronBunny.COLUMNS = int(column.get())
+        BaronBunny.MINES = int(bunny.get())
+
+        self.game()
+
+
     def create_widgets(self):
         
         menubar = tkinter.Menu(self.window)
         self.window.config(menu=menubar)
 
         menubar.add_command(label='Играть', command=self.game)
-        menubar.add_command(label='Настройки')
+        menubar.add_command(label='Настройки', command=self.settings)
         menubar.add_command(label='Выйти', command=self.window.destroy)
 
 
